@@ -1,6 +1,5 @@
 console.log("Hello world");
 chrome.tabs.query({"title": "*- Twitch"}, populateMenu);
-var tabsById = {};
 
 function populateMenu(tabs) {
     tabs.forEach(function(tab) {
