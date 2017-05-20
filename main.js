@@ -28,7 +28,7 @@ function isTwitchStream(tab) {
 function createSelectButton(tab, div) {
     var selectButton = document.createElement("button");
     selectButton.className = "select";
-    selectButton.textContent = tab.title;
+    selectButton.textContent = tab.title.split(" -")[0];
     selectButton.onclick = function (e) {
         console.log("switching to " + tab.id + " " + tab.title);
         chrome.windows.update(tab.windowId, {"focused": true});
