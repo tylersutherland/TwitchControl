@@ -4,6 +4,9 @@ function populateMenu(tabs) {
     tabs.forEach(function(tab) {
         // if tab looks like a twitch stream add it to the list
         if (isTwitchStream(tab)) {
+            chrome.tabs.executeScript(tab.id, {
+                "file": "control.js"
+            });
             var div = document.createElement("div");
             div.className = "control";
             createSelectButton(tab, div);
@@ -43,9 +46,7 @@ function createPlayButton(tab, div) {
     playButton.textContent = "Play/Pause";
     playButton.onclick = function (e) {
         console.log("attempting to play/pause");
-        chrome.tabs.executeScript(tab.id, {
-            "file": "play.js"
-        });
+        chrome.tabs.sendMessage(tab.id, {"message": "twitchcontrol:play"});
     };
     div.appendChild(playButton);
 }
@@ -75,7 +76,7 @@ function createVolumeControl(tab, div) {
     control.oninput = function () {
         output.value = control.value;
         mute.checked = false;
-        updateVolume(tab.id, output.value);
+        chrome.tabs.sendMessage(tab.id, {"message": "twitchcontrol:volume", "value": output.value});
     };
     mute.onclick = function () {
         if (mute.checked) {
@@ -83,24 +84,11 @@ function createVolumeControl(tab, div) {
         } else {
             output.value = control.value;
         }
-        updateVolume(tab.id, output.value);
+        chrome.tabs.sendMessage(tab.id, {"message": "twitchcontrol:volume", "value": output.value});
     }
     output.value = control.value;
     volumeControlDiv.appendChild(mute);
     volumeControlDiv.appendChild(control);
     volumeControlDiv.appendChild(output);
     div.appendChild(volumeControlDiv);
-}
-
-function updateVolume(tabId, value) {
-    chrome.tabs.sendMessage(tabId, {"message": "twitchcontrol:hello"}, function (response) {
-        if (response) {
-            chrome.tabs.sendMessage(tabId, {"message": "twitchcontrol:volume", "value": value});
-        } else {
-            console.log("inject volume script ");
-            chrome.tabs.executeScript(tabId, {
-                "file": "volume.js"
-            });
-        }
-    });
 }
