@@ -4,8 +4,14 @@ function populateMenu(tabs) {
     tabs.forEach(function(tab) {
         // if tab looks like a twitch stream add it to the list
         if (isTwitchStream(tab)) {
-            chrome.tabs.executeScript(tab.id, {
-                "file": "control.js"
+            //check to make sure the script hasn't already injected otherwise the script will attempt to do things multiple times
+            chrome.tabs.sendMessage(tab.id, {"message": "twitchcontrol:hello"}, function(response) {
+                console.log(response);
+                if (!response) {
+                    chrome.tabs.executeScript(tab.id, {
+                        "file": "control.js"
+                    });
+                }
             });
             var div = document.createElement("div");
             div.className = "control";
