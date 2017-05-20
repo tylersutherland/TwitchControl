@@ -9,7 +9,7 @@
     "author":"Tyler Sutherland",
 	"permissions":[
         "tabs",
-        "http://*/",
-        "https://*/"
+        "http://www.twitch.tv/*",
+        "https://www.twitch.tv/*"
 	]
 }
