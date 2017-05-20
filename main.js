@@ -4,10 +4,13 @@ function populateMenu(tabs) {
     tabs.forEach(function(tab) {
         // if tab looks like a twitch stream add it to the list
         if (isTwitchStream(tab)) {
-            createSelectButton(tab);
-            createPlayButton(tab);
-            createRefreshButton(tab);
-            createVolumeControl(tab);
+            var div = document.createElement("div");
+            div.className = "control";
+            createSelectButton(tab, div);
+            createPlayButton(tab, div);
+            createRefreshButton(tab, div);
+            createVolumeControl(tab, div);
+            document.body.appendChild(div);
         }
     });
 }
@@ -22,42 +25,45 @@ function isTwitchStream(tab) {
     return (userInTitle.toUpperCase() === userInUrl.toUpperCase());
 }
 
-function createSelectButton(tab) {
-    var div = document.createElement("div");
-    div.id = tab.id;
-    div.textContent = tab.title;
-    div.onclick = function (e) {
-        console.log("switching to " + div.id + " " + div.innerText);
+function createSelectButton(tab, div) {
+    var selectButton = document.createElement("button");
+    selectButton.className = "select";
+    selectButton.textContent = tab.title;
+    selectButton.onclick = function (e) {
+        console.log("switching to " + tab.id + " " + tab.title);
         chrome.windows.update(tab.windowId, {"focused": true});
-        chrome.tabs.update(Number(div.id), {"active": true});
+        chrome.tabs.update(Number(tab.id), {"active": true});
     };
-    document.body.appendChild(div);
+    div.appendChild(selectButton);
 }
 
-function createPlayButton(tab) {
-    var div = document.createElement("div");
-    div.textContent = "Play/Pause";
-    div.onclick = function (e) {
+function createPlayButton(tab, div) {
+    var playButton = document.createElement("button");
+    playButton.className = "play";
+    playButton.textContent = "Play/Pause";
+    playButton.onclick = function (e) {
         console.log("attempting to play/pause");
         chrome.tabs.executeScript(tab.id, {
             "file": "play.js"
         });
     };
-    document.body.appendChild(div);
+    div.appendChild(playButton);
 }
 
-function createRefreshButton(tab) {
-    var div = document.createElement("div");
-    div.textContent = "Refresh";
-    div.onclick = function (e) {
+function createRefreshButton(tab, div) {
+    var refreshButton = document.createElement("button");
+    refreshButton.className = "refresh";
+    refreshButton.textContent = "Refresh";
+    refreshButton.onclick = function (e) {
         chrome.tabs.reload(tab.id);
     };
-    document.body.appendChild(div);
+    div.appendChild(refreshButton);
 }
 
-function createVolumeControl(tab) {
-    var div = document.createElement("div");
-    div.textContent = "Mute";
+function createVolumeControl(tab, div) {
+    var volumeControlDiv = document.createElement("div");
+    volumeControlDiv.className = "volume";
+    volumeControlDiv.textContent = "Mute";
     var mute = document.createElement("input");
     mute.type = "checkbox";
     var control = document.createElement("input");
@@ -80,10 +86,10 @@ function createVolumeControl(tab) {
         updateVolume(tab.id, output.value);
     }
     output.value = control.value;
-    div.appendChild(mute);
-    div.appendChild(control);
-    div.appendChild(output);
-    document.body.appendChild(div);
+    volumeControlDiv.appendChild(mute);
+    volumeControlDiv.appendChild(control);
+    volumeControlDiv.appendChild(output);
+    div.appendChild(volumeControlDiv);
 }
 
 function updateVolume(tabId, value) {

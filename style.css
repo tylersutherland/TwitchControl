@@ -1,11 +1,9 @@
-body {
-	min-width: 200px;
+div.control {
+    overflow: hidden;
+    white-space: nowrap;
 }
 
-div {
-    border-radius: 5px;
-}
-
-div:hover {
-    background-color: #D3D3D3;
+div.volume {
+    display: inline-block;
+    margin: 5px;
 }
