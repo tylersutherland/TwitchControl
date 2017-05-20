@@ -6,6 +6,7 @@ function populateMenu(tabs) {
         if (isTwitchStream(tab)) {
             createSelectButton(tab);
             createPlayButton(tab);
+            createRefreshButton(tab);
         }
     });
 }
@@ -40,6 +41,15 @@ function createPlayButton(tab) {
         chrome.tabs.executeScript(tab.id, {
             file: "play.js"
         });
+    };
+    document.body.appendChild(div);
+}
+
+function createRefreshButton(tab) {
+    var div = document.createElement("div");
+    div.textContent = "Refresh";
+    div.onclick = function (e) {
+        chrome.tabs.reload(tab.id);
     };
     document.body.appendChild(div);
 }
