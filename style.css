@@ -1,3 +1,11 @@
 body {
 	min-width: 200px;
 }
+
+div {
+    border-radius: 5px;
+}
+
+div:hover {
+    background-color: #D3D3D3;
+}
