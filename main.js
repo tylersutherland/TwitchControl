@@ -7,6 +7,7 @@ function populateMenu(tabs) {
             createSelectButton(tab);
             createPlayButton(tab);
             createRefreshButton(tab);
+            createVolumeControl(tab);
         }
     });
 }
@@ -39,7 +40,7 @@ function createPlayButton(tab) {
     div.onclick = function (e) {
         console.log("attempting to play/pause");
         chrome.tabs.executeScript(tab.id, {
-            file: "play.js"
+            "file": "play.js"
         });
     };
     document.body.appendChild(div);
@@ -52,4 +53,48 @@ function createRefreshButton(tab) {
         chrome.tabs.reload(tab.id);
     };
     document.body.appendChild(div);
+}
+
+function createVolumeControl(tab) {
+    var div = document.createElement("div");
+    div.textContent = "Mute";
+    var mute = document.createElement("input");
+    mute.type = "checkbox";
+    var control = document.createElement("input");
+    var output = document.createElement("output");
+    control.min = 0;
+    control.max = 1;
+    control.step = 0.1;
+    control.type = "range";
+    control.oninput = function () {
+        output.value = control.value;
+        mute.checked = false;
+        updateVolume(tab.id, output.value);
+    };
+    mute.onclick = function () {
+        if (mute.checked) {
+            output.value = 0;
+        } else {
+            output.value = control.value;
+        }
+        updateVolume(tab.id, output.value);
+    }
+    output.value = control.value;
+    div.appendChild(mute);
+    div.appendChild(control);
+    div.appendChild(output);
+    document.body.appendChild(div);
+}
+
+function updateVolume(tabId, value) {
+    chrome.tabs.sendMessage(tabId, {"message": "twitchcontrol:hello"}, function (response) {
+        if (response) {
+            chrome.tabs.sendMessage(tabId, {"message": "twitchcontrol:volume", "value": value});
+        } else {
+            console.log("inject volume script ");
+            chrome.tabs.executeScript(tabId, {
+                "file": "volume.js"
+            });
+        }
+    });
 }
