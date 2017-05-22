@@ -36,6 +36,7 @@ function isTwitchStream(tab) {
 function createSelectButton(tab, div) {
     var selectButton = document.createElement("button");
     selectButton.className = "select";
+    selectButton.title = "Switch to this stream";
     selectButton.textContent = tab.title.split(" -")[0];
     selectButton.onclick = function (e) {
         console.log("switching to " + tab.id + " " + tab.title);
@@ -49,11 +50,13 @@ function createPlayButton(tab, div) {
     var playButton = document.createElement("button");
     chrome.tabs.sendMessage(tab.id, {"message": "twitchcontrol:getplaystate"}, function (response) {
             playButton.className = response.paused ? "play" : "pause";
+            playButton.title = playButton.className == "play" ? "Play" : "Pause";
     });
     playButton.onclick = function (e) {
         console.log("attempting to play/pause");
         chrome.tabs.sendMessage(tab.id, {"message": "twitchcontrol:play"});
-        playButton.className = playButton.className == "play" ? "pause" : "play";
+        playButton.className = playButton.className == "play" ? "pause" : "play";  
+        playButton.title = playButton.className == "play" ? "Play" : "Pause"; 
     };
     div.appendChild(playButton);
 }
@@ -61,6 +64,7 @@ function createPlayButton(tab, div) {
 function createRefreshButton(tab, div) {
     var refreshButton = document.createElement("button");
     refreshButton.className = "refresh";
+    refreshButton.title = "Refresh";
     refreshButton.onclick = function (e) {
         chrome.tabs.reload(tab.id);
     };
@@ -80,6 +84,7 @@ function createVolumeControl(tab, div) {
         muted = response.muted;
         control.value = muted ? 0 : volume;
         mute.className = muted ? "muted" : "notmuted";
+        mute.title = muted ? "Unmute" : "Mute";
     });
     control.min = 0;
     control.max = 1;
@@ -109,4 +114,5 @@ function updateVolumeControls(volume, muted, control, mute) {
         control.value = volume;
         mute.className = "notmuted";
     }
+    mute.title = muted ? "Unmute" : "Mute";
 }
