@@ -1,9 +1,46 @@
 div.control {
     overflow: hidden;
     white-space: nowrap;
+    display: flex;
+    align-items: center;
 }
 
 div.volume {
     display: inline-block;
+}
+
+button {
     margin: 5px;
+}
+
+button.play, button.pause, button.muted, button.notmuted, button.refresh {
+    width: 21px;
+    height: 21px;
+    background-color: white;
+    background-size: 100%;
+    border: none;
+}
+
+button.select {
+    width: 150px;
+}
+
+button.play {
+    background-image: url("play.png");
+}
+
+button.pause {
+    background-image: url("pause.png");
+}
+
+button.muted {
+    background-image: url("muted.png");
+}
+
+button.notmuted {
+    background-image: url("notmuted.png");
+}
+
+button.refresh {
+    background-image: url("refresh2.png");
 }

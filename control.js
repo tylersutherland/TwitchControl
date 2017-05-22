@@ -12,9 +12,13 @@ chrome.runtime.onMessage.addListener(
         if (request.message == "twitchcontrol:hello") {
             sendResponse({"message": "hi"});
         } else if (request.message == "twitchcontrol:volume") {
-            setVolume(request.value);
+            setVolume(request.volume, request.muted);
         } else if (request.message == "twitchcontrol:play") {
             playPause();
+        } else if (request.message == "twitchcontrol:getplaystate") {
+            sendResponse({"paused": video.paused});
+        } else if (request.message == "twitchcontrol:getvolumestate") {
+            sendResponse({"muted": video.muted, "volume": video.volume});
         }
 });
 
@@ -31,11 +35,12 @@ function playPause() {
         video.pause();
     }
 }
-function setVolume(volume) {
+function setVolume(volume, muted) {
+    // checks to see if the video is being muted or unmuted to update the mute button on twitch to try and stay in sync 
     if (((volume != video.volume) && (volume == 0 || video.volume == 0))
          || ((video.muted && volume > 0) || (!video.muted && volume == 0))) {
         muteButton.click();
     }
-    video.muted = volume == 0;
+    video.muted = muted;
     video.volume = volume;
 }

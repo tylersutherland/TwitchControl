@@ -6,20 +6,19 @@ function populateMenu(tabs) {
         if (isTwitchStream(tab)) {
             //check to make sure the script hasn't already injected otherwise the script will attempt to do things multiple times
             chrome.tabs.sendMessage(tab.id, {"message": "twitchcontrol:hello"}, function(response) {
-                console.log(response);
                 if (!response) {
                     chrome.tabs.executeScript(tab.id, {
                         "file": "control.js"
                     });
                 }
+                var div = document.createElement("div");
+                div.className = "control";
+                createSelectButton(tab, div);
+                createPlayButton(tab, div);
+                createRefreshButton(tab, div);
+                createVolumeControl(tab, div);
+                document.body.appendChild(div);
             });
-            var div = document.createElement("div");
-            div.className = "control";
-            createSelectButton(tab, div);
-            createPlayButton(tab, div);
-            createRefreshButton(tab, div);
-            createVolumeControl(tab, div);
-            document.body.appendChild(div);
         }
     });
 }
@@ -48,11 +47,13 @@ function createSelectButton(tab, div) {
 
 function createPlayButton(tab, div) {
     var playButton = document.createElement("button");
-    playButton.className = "play";
-    playButton.textContent = "Play/Pause";
+    chrome.tabs.sendMessage(tab.id, {"message": "twitchcontrol:getplaystate"}, function (response) {
+            playButton.className = response.paused ? "play" : "pause";
+    });
     playButton.onclick = function (e) {
         console.log("attempting to play/pause");
         chrome.tabs.sendMessage(tab.id, {"message": "twitchcontrol:play"});
+        playButton.className = playButton.className == "play" ? "pause" : "play";
     };
     div.appendChild(playButton);
 }
@@ -60,7 +61,6 @@ function createPlayButton(tab, div) {
 function createRefreshButton(tab, div) {
     var refreshButton = document.createElement("button");
     refreshButton.className = "refresh";
-    refreshButton.textContent = "Refresh";
     refreshButton.onclick = function (e) {
         chrome.tabs.reload(tab.id);
     };
@@ -70,31 +70,43 @@ function createRefreshButton(tab, div) {
 function createVolumeControl(tab, div) {
     var volumeControlDiv = document.createElement("div");
     volumeControlDiv.className = "volume";
-    volumeControlDiv.textContent = "Mute";
-    var mute = document.createElement("input");
-    mute.type = "checkbox";
+    var mute = document.createElement("button");
+    mute.className = "notmuted";
     var control = document.createElement("input");
-    var output = document.createElement("output");
+    var volume = 0.5;
+    var muted = false;
+    chrome.tabs.sendMessage(tab.id, {"message": "twitchcontrol:getvolumestate"}, function(response) {
+        volume = response.volume;
+        muted = response.muted;
+        control.value = muted ? 0 : volume;
+        mute.className = muted ? "muted" : "notmuted";
+    });
     control.min = 0;
     control.max = 1;
-    control.step = 0.1;
+    control.step = 0.01;
     control.type = "range";
     control.oninput = function () {
-        output.value = control.value;
-        mute.checked = false;
-        chrome.tabs.sendMessage(tab.id, {"message": "twitchcontrol:volume", "value": output.value});
+        volume = control.value;
+        muted = volume == 0;
+        chrome.tabs.sendMessage(tab.id, {"message": "twitchcontrol:volume", "volume": volume, "muted": muted});
+        updateVolumeControls(volume, muted, control, mute);
     };
     mute.onclick = function () {
-        if (mute.checked) {
-            output.value = 0;
-        } else {
-            output.value = control.value;
-        }
-        chrome.tabs.sendMessage(tab.id, {"message": "twitchcontrol:volume", "value": output.value});
+        muted = !muted;
+        chrome.tabs.sendMessage(tab.id, {"message": "twitchcontrol:volume", "volume": volume, "muted": muted});
+        updateVolumeControls(volume, muted, control, mute);
     }
-    output.value = control.value;
     volumeControlDiv.appendChild(mute);
     volumeControlDiv.appendChild(control);
-    volumeControlDiv.appendChild(output);
     div.appendChild(volumeControlDiv);
+}
+
+function updateVolumeControls(volume, muted, control, mute) {
+    if (muted) {
+        control.value = 0;
+        mute.className = "muted";
+    } else {
+        control.value = volume;
+        mute.className = "notmuted";
+    }
 }
