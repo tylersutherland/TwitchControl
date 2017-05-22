@@ -26,21 +26,21 @@ button.select {
 }
 
 button.play {
-    background-image: url("play.png");
+    background-image: url("images/play.png");
 }
 
 button.pause {
-    background-image: url("pause.png");
+    background-image: url("images/pause.png");
 }
 
 button.muted {
-    background-image: url("muted.png");
+    background-image: url("images/muted.png");
 }
 
 button.notmuted {
-    background-image: url("notmuted.png");
+    background-image: url("images/notmuted.png");
 }
 
 button.refresh {
-    background-image: url("refresh2.png");
+    background-image: url("images/refresh2.png");
 }
