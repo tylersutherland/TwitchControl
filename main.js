@@ -49,16 +49,25 @@ function createSelectButton(tab, div) {
 function createPlayButton(tab, div) {
     var playButton = document.createElement("button");
     chrome.tabs.sendMessage(tab.id, {"message": "twitchcontrol:getplaystate"}, function (response) {
-            playButton.className = response.paused ? "play" : "pause";
-            playButton.title = playButton.className == "play" ? "Play" : "Pause";
+            updatePlayButton(response.paused, playButton)
     });
     playButton.onclick = function (e) {
         console.log("attempting to play/pause");
-        chrome.tabs.sendMessage(tab.id, {"message": "twitchcontrol:play"});
-        playButton.className = playButton.className == "play" ? "pause" : "play";  
-        playButton.title = playButton.className == "play" ? "Play" : "Pause"; 
+        chrome.tabs.sendMessage(tab.id, {"message": "twitchcontrol:play"}, function (response) {
+            updatePlayButton(response.paused, playButton);
+        });
     };
     div.appendChild(playButton);
+}
+
+function updatePlayButton(paused, playButton) {
+    if (paused) {
+        playButton.className = "play";
+        playButton.title = "Play"
+    } else {
+        playButton.className = "pause";
+        playButton.title = "Pause"
+    }
 }
 
 function createRefreshButton(tab, div) {
@@ -82,9 +91,7 @@ function createVolumeControl(tab, div) {
     chrome.tabs.sendMessage(tab.id, {"message": "twitchcontrol:getvolumestate"}, function(response) {
         volume = response.volume;
         muted = response.muted;
-        control.value = muted ? 0 : volume;
-        mute.className = muted ? "muted" : "notmuted";
-        mute.title = muted ? "Unmute" : "Mute";
+        updateVolumeControls(volume, muted, control, mute);
     });
     control.min = 0;
     control.max = 1;
@@ -110,9 +117,10 @@ function updateVolumeControls(volume, muted, control, mute) {
     if (muted) {
         control.value = 0;
         mute.className = "muted";
+        mute.title = "Unmute"
     } else {
         control.value = volume;
         mute.className = "notmuted";
+        mute.title = "Mute"
     }
-    mute.title = muted ? "Unmute" : "Mute";
 }

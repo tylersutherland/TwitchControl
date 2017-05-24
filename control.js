@@ -15,6 +15,7 @@ chrome.runtime.onMessage.addListener(
             setVolume(request.volume, request.muted);
         } else if (request.message == "twitchcontrol:play") {
             playPause();
+            sendResponse({"paused": video.paused});
         } else if (request.message == "twitchcontrol:getplaystate") {
             sendResponse({"paused": video.paused});
         } else if (request.message == "twitchcontrol:getvolumestate") {
